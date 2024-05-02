@@ -1,0 +1,3 @@
+cd <directory here>
+source .venv/Scripts/activate
+python main.py
