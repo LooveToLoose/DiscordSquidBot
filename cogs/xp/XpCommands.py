@@ -8,6 +8,7 @@ from discord.ext import commands
 from pymongo.server_api import ServerApi
 from pymongo import MongoClient
 import decorators.decorator as dc
+import typing
 
 db = MongoClient(os.getenv("MONGO_DB_URI"), server_api=ServerApi('1'))["test"]
 xpCollection = db["newerxps"]
@@ -24,12 +25,9 @@ class XpCommand(commands.Cog):
                       help="Give user xp", 
                       usage="sq!addxp @user/userID XpAmount")
     @dc.has_role(AIRole)
-    async def addXp(self, ctx:commands.Context,  *args,amount_of_xp: int):
+    async def addXp(self, ctx:commands.Context, member: typing.Optional[discord.Member], amount_of_xp: int):
         try:  
-            if args:
-                user = await dc.mention_or_fetch_user(ctx,args[0])
-            else:
-                user = ctx.author
+            user = member if member is not None else ctx.author
             if not amount_of_xp:
                 await ctx.reply("Please specify the amount of XP you want to add/subtract!")
                 return
