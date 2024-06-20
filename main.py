@@ -38,6 +38,6 @@ bot = Bot()
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
         pass
-load_dotenv()
+load_dotenv(override=True)
 
 bot.run(os.getenv("TOKEN"))
