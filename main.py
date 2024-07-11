@@ -1,9 +1,14 @@
 # This example requires the 'message_content' intent.
 
+import traceback
 import discord
 from discord.ext import commands
 import os
 from dotenv import load_dotenv
+from pymongo.server_api import ServerApi
+from pymongo import MongoClient
+
+load_dotenv(override=True)
 
 
 class Bot(commands.Bot):
@@ -30,14 +35,35 @@ class Bot(commands.Bot):
 
         self.loop.create_task(self.startup())
 
+    async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
+        if isinstance(error, commands.CommandNotFound): return
+        
+        db = MongoClient(os.getenv("MONGO_DB_URI"), server_api=ServerApi('1'))["test"]
+        errorDb = db["errors"]
+        user_id = 391234130387533825
+        user = ctx.guild.get_member(user_id)
+
+        try:
+            res = errorDb.find_one({"id": "err"})
+            errorDb.insert_one
+            if not res:
+                errorDb.insert_one({"id": "err", "errorCount": 0})
+                res = errorDb.find_one({"id": "err"})
+            if user and res:
+                errorCount = str(res["errorCount"]).zfill(3)
+                # User found, send a DM
+                full_error_message = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
+                await user.send(f"Send by {ctx.author}\nMessage link: {ctx.message.jump_url}\nError code: {errorCount}\n```{full_error_message}```")
+                await ctx.reply(f"**Error:** \n*Unexpected issue occurred in the advanced cognitive processes. *\n```javascript\nCode: SNAIL-ERR-HUMANS-{errorCount}\n```\nAre you now happy, humans?.")
+            
+            errorDb.find_one_and_update({"id": "err"}, {"$inc": {"errorCount": 1}})
+
+        except Exception as e:
+            print(f"Error handling failed: {e}")
+
 
 
 bot = Bot()
 
-@bot.event
-async def on_command_error(ctx, error):
-    if isinstance(error, commands.CommandNotFound):
-        pass
-load_dotenv(override=True)
 
 bot.run(os.getenv("TOKEN"))
