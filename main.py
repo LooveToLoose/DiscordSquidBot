@@ -13,7 +13,7 @@ load_dotenv(override=True)
 
 class Bot(commands.Bot):
     def __init__(self):
-        super().__init__(command_prefix="!", intents=discord.Intents.all())
+        super().__init__(command_prefix=[prefix.strip() for prefix in os.getenv("PREFIXES").split(",")], intents=discord.Intents.all())
         self.remove_command("help")
     async def startup(self):
         await bot.wait_until_ready()
@@ -37,6 +37,14 @@ class Bot(commands.Bot):
 
     async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
         if isinstance(error, commands.CommandNotFound): return
+
+        if isinstance(error, commands.UserInputError):
+            await ctx.send(f'Incorrect argument | Usage: {ctx.command.usage}')
+            return
+        
+        if isinstance(error, commands.MissingRole):
+            await ctx.reply("You aren't allowed to use this command!")
+            return
         
         db = MongoClient(os.getenv("MONGO_DB_URI"), server_api=ServerApi('1'))["test"]
         errorDb = db["errors"]

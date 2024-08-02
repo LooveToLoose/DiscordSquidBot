@@ -6,7 +6,7 @@ To host your own version of Squidbot, whether for your own server or to help imp
 
 #### Prerequisites
 Before you start, you'll need to have some things installed:
-1. Python 3.10 or later. (https://www.python.org/downloads/)
+1. Python 3.9 or later. (https://www.python.org/downloads/) (It is hosted with python 3.9)
 2. If you want to contribute, you'll need Git. (https://git-scm.com/downloads)
 3. An code editor. Visual Studio Code is recommended, Notepad is not, but whatever you usually use should work fine.
 
@@ -44,7 +44,7 @@ These next few parts will all be done in your terminal. Make sure you're in the 
 Create Virtual Environment
 
 This is done to make sure none of the dependencies mess with anything else on your system.
-To create the virtual environment, run `python3.10 -m venv ./venv`.
+To create the virtual environment, run `python -m venv ./venv`.
 This will create a new folder, `venv`, that contains your virtual environment.
 
 Next, you need to activate the virtual environment. You'll need to do this every time you enter the shell to start the bot, so it always uses the right dependencies.
@@ -62,3 +62,7 @@ To start the bot, just run `python main.py`, and you should be on your way! Do k
 If you've made any changes to your Squidbot and think they would be good to include in the base Squidbot, feel free to make a pull request!
 If you want to help make Squidbot better but don't know what to add, look at the issues to see what people want!
 And if you have any suggestions but don't have the time or knowledge to code them, or have seen a bug and would like to report it, please make an issue so it can be fixed! 
+
+## Credits
+
+Many thanks to txshiro, the original developer of this Squidbot.
