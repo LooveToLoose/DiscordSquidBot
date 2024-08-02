@@ -306,10 +306,5 @@ class XpCommand(commands.Cog):
 
         await ctx.send(response)
         
-class ErrorHandling():
-    @XpCommand.addXp.error
-    async def addXp_error(self,ctx,error):
-            if isinstance(error, commands.MissingRequiredArgument):
-                await ctx.send('Inccorrect arguments entered | !command_name - user - amount of xp')
 async def setup(bot): # set async function
     await bot.add_cog(XpCommand(bot)) # Use await

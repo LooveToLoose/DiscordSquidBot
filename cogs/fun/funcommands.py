@@ -153,11 +153,5 @@ class FunCommands(commands.Cog):
         embed.set_image(url=avatar_url)
         await ctx.reply(embed=embed)
 
-
-class ErrorHandling():
-    @FunCommands.say.error
-    async def say_error(self,ctx,error):
-            if isinstance(error, commands.MissingRequiredArgument):
-                await ctx.send('Inccorrect arguments entered | !command_name - channel - msg')
 async def setup(bot): # set async function
     await bot.add_cog(FunCommands(bot)) # Use await

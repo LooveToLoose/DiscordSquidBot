@@ -121,15 +121,5 @@ class QuickCommands(commands.Cog):
                     break
 
 
-
-class ErrorHandling():
-    @QuickCommands.deletequickcommand.error
-    async def deletequickcommand_error(self,ctx,error):
-            if isinstance(error, commands.MissingRequiredArgument):
-                await ctx.send('Inccorrect arguments entered | !command_name - name')
-    @QuickCommands.newquickcommand.error
-    async def newquickcommand_error(self,ctx,error):
-            if isinstance(error, commands.MissingRequiredArgument):
-                await ctx.send('Inccorrect arguments entered | !command_name - name - response')
 async def setup(bot): # set async function
     await bot.add_cog(QuickCommands(bot)) # Use await
