@@ -62,7 +62,7 @@ class Bot(commands.Bot):
                 # User found, send a DM
                 full_error_message = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
                 await user.send(f"Send by {ctx.author}\nMessage link: {ctx.message.jump_url}\nError code: {errorCount}\n```{full_error_message}```")
-                await ctx.reply(f"**Error:** \n*Unexpected issue occurred in the advanced cognitive processes. *\n```javascript\nCode: SNAIL-ERR-HUMANS-{errorCount}\n```\nAre you now happy, humans?.")
+                await ctx.reply(f"**Error:** \n*Unexpected issue occurred in the advanced cognitive processes. *\n```javascript\nCode: SNAIL-ERR-HUMANS-{errorCount}\n```\nAre you happy now, humans?")
             
             errorDb.find_one_and_update({"id": "err"}, {"$inc": {"errorCount": 1}})
 
