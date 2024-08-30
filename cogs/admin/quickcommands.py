@@ -5,7 +5,6 @@ import asyncio
 from discord.ext import commands
 from pymongo.server_api import ServerApi
 from pymongo import MongoClient
-import decorators.decorator as dc
 
 db = MongoClient(os.getenv("MONGO_DB_URI"), server_api=ServerApi('1'))["test"]
 collection = db["quick commands"]

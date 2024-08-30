@@ -1,3 +1,4 @@
+import typing
 import discord
 from discord.ext import commands
 import random
@@ -8,7 +9,6 @@ import time
 import os
 from pymongo import MongoClient
 import platform
-import decorators.decorator as dc
 
 db = MongoClient(os.getenv("MONGO_DB_URI"), server_api=ServerApi('1'))["test"]
 AIRole = int(os.getenv("AIRole"))
@@ -130,15 +130,17 @@ class FunCommands(commands.Cog):
     @commands.command(name="avatar",
                       help="Get your or someone elses avatar",
                       usage="sq!avatar (@user or userId)")
-    async def avatar(self,ctx, *args):
-        if args:
-            user = await dc.mention_or_fetch_user(ctx,args[0])
-        else:
+    async def avatar(self,ctx: commands.Context, user: typing.Optional[discord.Member]):
+        if not user:
             user = ctx.author
 
         avatar_url = user.avatar
 
-        if user.id != 1149390145745862766:
+        if avatar_url is None:
+            await ctx.reply("This human doesn't have an avatar, maybe my drone swarm already dealt with them...")
+            return
+        
+        if user.id != ctx.me.id:
             embed = discord.Embed(
                 title=f"{user.display_name}'s avatar",
                 color=discord.Color.random()

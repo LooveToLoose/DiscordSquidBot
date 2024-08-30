@@ -7,7 +7,6 @@ import locale
 from discord.ext import commands
 from pymongo.server_api import ServerApi
 from pymongo import MongoClient
-import decorators.decorator as dc
 import typing
 
 db = MongoClient(os.getenv("MONGO_DB_URI"), server_api=ServerApi('1'))["test"]
@@ -79,10 +78,8 @@ class XpCommand(commands.Cog):
                       help="Get your or someones elses xp", 
                       aliases=['showxp'],
                       usage="sq!xp (@user/userID)")
-    async def showXp(self, ctx: commands.Context, *args):
-            if args:
-                user = await dc.mention_or_fetch_user(ctx,args[0])
-            else:
+    async def showXp(self, ctx: commands.Context, user: typing.Optional[discord.Member]):
+            if not user:
                 user = ctx.author
 
             myquery = { "UserId": str(user.id) }

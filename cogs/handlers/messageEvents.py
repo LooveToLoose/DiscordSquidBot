@@ -147,7 +147,7 @@ async def QuickOrFeedbackCommands(message):
 
             if custom_feedback_command_data:
                 role = message.guild.get_role(custom_feedback_command_data["roleThatCanUse"])
-                if (has_role(AIRole)): # TODO: Fix this check, or possibly remove feedback commands in general? Gotta ask.
+                if False: # TODO: Fix this check, or possibly remove feedback commands in general? Gotta ask.
                     if(role is None):
                         channel_to_post_to = message.guild.get_channel(int(custom_feedback_command_data["channelID"]))
 

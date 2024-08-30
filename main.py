@@ -35,7 +35,7 @@ class Bot(commands.Bot):
 
         self.loop.create_task(self.startup())
 
-    async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
+    async def on_command_error(self, ctx: commands.Context, error: commands.CommandError): # TODO: Switch to python 3.10+, so this can be done with match/case and be much cleaner.
         if isinstance(error, commands.CommandNotFound): return
 
         if isinstance(error, commands.UserInputError):
@@ -43,8 +43,10 @@ class Bot(commands.Bot):
             return
         
         if isinstance(error, commands.MissingRole):
-            await ctx.reply("You aren't allowed to use this command!")
+            await ctx.reply(f"This command can be only used by {ctx.guild.get_role(error.missing_role) if isinstance(error.missing_role, int) else error.missing_role}.")
             return
+
+        if isinstance(error, commands.NoPrivateMessage): return await ctx.reply("This command cannot be used in private messages.")
         
         db = MongoClient(os.getenv("MONGO_DB_URI"), server_api=ServerApi('1'))["test"]
         errorDb = db["errors"]
@@ -61,7 +63,7 @@ class Bot(commands.Bot):
                 errorCount = str(res["errorCount"]).zfill(3)
                 # User found, send a DM
                 full_error_message = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
-                await user.send(f"Send by {ctx.author}\nMessage link: {ctx.message.jump_url}\nError code: {errorCount}\n```{full_error_message}```")
+                await user.send(f"Send by {ctx.author}\nMessage link: {ctx.message.jump_url}\nError code: {errorCount}\n```{full_error_message[:1500]}```")
                 await ctx.reply(f"**Error:** \n*Unexpected issue occurred in the advanced cognitive processes. *\n```javascript\nCode: SNAIL-ERR-HUMANS-{errorCount}\n```\nAre you happy now, humans?")
             
             errorDb.find_one_and_update({"id": "err"}, {"$inc": {"errorCount": 1}})
