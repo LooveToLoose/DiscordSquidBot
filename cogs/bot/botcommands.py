@@ -3,10 +3,9 @@ import discord
 from pymongo.server_api import ServerApi
 import os
 from pymongo import MongoClient
-from decorators.decorator import has_role
 
 db = MongoClient(os.getenv("MONGO_DB_URI"), server_api=ServerApi('1'))["test"]
-AIRole = os.getenv("AIRole")
+AIRole = int(os.getenv("AIRole"))
 
 FUN_EMOJI = '🎉'
 UTILITY_EMOJI = '🔧'

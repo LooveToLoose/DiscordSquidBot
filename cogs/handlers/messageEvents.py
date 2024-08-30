@@ -6,7 +6,6 @@ import os
 import time
 import random
 import asyncio
-from decorators.decorator import has_role
 
 db = MongoClient(os.getenv("MONGO_DB_URI"), server_api=ServerApi('1'))["test"]
 xpCollection = db["newerxps"]
@@ -21,7 +20,7 @@ user_cooldowns = {}
 maxXP = 16
 minXP = 7
 
-AIRole = os.getenv("AIRole")
+AIRole = int(os.getenv("AIRole"))
 prefixes = "!"
 buttons = ["<:Diff1InfinitelyEasy:686910602689380422>",
            "<:Down:946437519476666379>"]
@@ -148,7 +147,7 @@ async def QuickOrFeedbackCommands(message):
 
             if custom_feedback_command_data:
                 role = message.guild.get_role(custom_feedback_command_data["roleThatCanUse"])
-                if (has_role(AIRole)):
+                if (has_role(AIRole)): # TODO: Fix this check, or possibly remove feedback commands in general? Gotta ask.
                     if(role is None):
                         channel_to_post_to = message.guild.get_channel(int(custom_feedback_command_data["channelID"]))
 

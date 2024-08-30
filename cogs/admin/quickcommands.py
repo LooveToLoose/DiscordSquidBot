@@ -11,7 +11,7 @@ db = MongoClient(os.getenv("MONGO_DB_URI"), server_api=ServerApi('1'))["test"]
 collection = db["quick commands"]
 
 
-AIRole = os.getenv("AIRole")
+AIRole = int(os.getenv("AIRole"))
 
 class QuickCommands(commands.Cog):
     def __init__(self, bot):
@@ -21,7 +21,7 @@ class QuickCommands(commands.Cog):
                       aliases=["dqc","removequickcommand","rqc"], 
                       help="Remove a quick command!",
                       usage="sq!dqc commandName")
-    @dc.has_role(AIRole)
+    @commands.has_role(AIRole)
     async def deletequickcommand(self, ctx:commands.Context, command_name):
         result = collection.find_one_and_delete({"commandName": command_name.lower()})
 
@@ -34,7 +34,7 @@ class QuickCommands(commands.Cog):
                       aliases=["nqc","addquickcommand","aqc"], 
                       help="Add a quick command!",
                       usage="sq!nqc commandName response")
-    @dc.has_role(AIRole)
+    @commands.has_role(AIRole)
     async def newquickcommand(self,ctx:commands.Context, command_name, *response):
         if not command_name:
             return await ctx.reply("Please specify a command name!")

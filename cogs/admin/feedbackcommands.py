@@ -10,7 +10,7 @@ import decorators.decorator as dc
 db = MongoClient(os.getenv("MONGO_DB_URI"), server_api=ServerApi('1'))["test"]
 collection = db["feedback commands"]
 
-AIRole = os.getenv("AIRole")
+AIRole = int(os.getenv("AIRole"))
 
 class FeedbackCommands(commands.Cog):
     def __init__(self, bot):
@@ -20,7 +20,7 @@ class FeedbackCommands(commands.Cog):
                       aliases=["rfc","deletefeedbackcommand","dfc"], 
                       help="Remove a feedback command!", 
                       usage="sq!rfc commandName")
-    @dc.has_role(AIRole)
+    @commands.has_role(AIRole)
     async def removefeedbackcommand(self,ctx:commands.Context, command_name):
         if not command_name:
             return await ctx.send("Please specify a feedback command name!")
@@ -36,7 +36,7 @@ class FeedbackCommands(commands.Cog):
                       aliases=["nfc","addfeedbackcommand","afc"], 
                       help="Add a feedback command!",
                       usage="sq!nfc commandName #textChannel @roleThatCanUse")
-    @dc.has_role(AIRole)
+    @commands.has_role(AIRole)
     async def newfeedbackcommand(self,ctx:commands.Context, command_name, text_channel: discord.TextChannel, role: discord.Role):
         if not command_name:
             return ctx.send("Please specify a command name!")

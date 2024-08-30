@@ -13,7 +13,7 @@ import typing
 db = MongoClient(os.getenv("MONGO_DB_URI"), server_api=ServerApi('1'))["test"]
 xpCollection = db["newerxps"]
 optoutCollection= db["bools"]
-AIRole = os.getenv("AIRole")
+AIRole = int(os.getenv("AIRole"))
 
 class XpCommand(commands.Cog):
     def __init__(self, bot):
@@ -24,7 +24,7 @@ class XpCommand(commands.Cog):
     @commands.command(name="givexp", 
                       help="Give user xp", 
                       usage="sq!addxp @user/userID XpAmount")
-    @dc.has_role(AIRole)
+    @commands.has_role(AIRole)
     async def addXp(self, ctx:commands.Context, member: typing.Optional[discord.Member], amount_of_xp: int):
         user = member if member is not None else ctx.author
         if not amount_of_xp:

@@ -11,7 +11,7 @@ import platform
 import decorators.decorator as dc
 
 db = MongoClient(os.getenv("MONGO_DB_URI"), server_api=ServerApi('1'))["test"]
-AIRole = os.getenv("AIRole")
+AIRole = int(os.getenv("AIRole"))
 yoCollection = db["yos"]
 class FunCommands(commands.Cog):
     def __init__(self, bot):
@@ -22,7 +22,7 @@ class FunCommands(commands.Cog):
                       role="Admin", 
                       help="Say something while being Squid",
                       usage="sq!say")
-    @dc.has_role(AIRole)
+    @commands.has_role(AIRole)
     async def say(self, ctx: commands.Context,*, message):
         if not message:
             await ctx.send('Specify what you want to say!')
