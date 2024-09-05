@@ -1,0 +1,33 @@
+{
+    "min_xp": 7,
+    "max_xp": 16,
+    "level_rewards": [
+	{
+	    "level": 10,
+	    "emoji": "<:ShellySnail:710586732097044490>",
+	    "role": 713692113082253323
+	},
+	{
+	    "level": 25,
+	    "emoji": "<:ShellyBronze:710586775319478312>",
+	    "role": 711705696709771267
+	},
+	{
+	    "level": 50,
+	    "emoji": "<:ShellySilver:710586793132818530>",
+	    "role": 711706071991058462
+	},
+	{
+	    "level": 100,
+	    "emoji": "<:ShellyGold:710586809712640012>",
+	    "role": 711705811633832009
+	},
+	{
+	    "level": 150,
+	    "emoji": "<:ShellyDiamond:717472682341433472>",
+	    "role": 717372676796317718
+	}
+    ],
+    "last_emoji": "<:shellyprototype:981954824851562497>",
+    "level_ups_channel": 950844814667161600
+}

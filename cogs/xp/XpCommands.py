@@ -1,13 +1,15 @@
 import os
 import discord
 import datetime
-import traceback
 import asyncio
-import locale
-from discord.ext import commands
+from discord.ext import commands, tasks
 from pymongo.server_api import ServerApi
 from pymongo import MongoClient
 import typing
+import time
+import random
+import math
+import json
 
 db = MongoClient(os.getenv("MONGO_DB_URI"), server_api=ServerApi('1'))["test"]
 xpCollection = db["newerxps"]
@@ -15,8 +17,28 @@ optoutCollection= db["bools"]
 AIRole = int(os.getenv("AIRole"))
 
 class XpCommand(commands.Cog):
+    user_cooldowns = {}
+    
     def __init__(self, bot):
+        with open("json/xp.json", "r") as file:
+            data = json.load(file)
+            self.min_xp = data["min_xp"]
+            self.max_xp = data["max_xp"]
+
+            self.level_rewards = data["level_rewards"]
+
+            self.level_rewards.sort(key=lambda r: r["level"])
+            
+            self.after_last_emoji = data["last_emoji"]
+
+            self.level_ups_channel_id = data["level_ups_channel"]
+
+        self.remove_old_cooldowns.start()
+            
         self.bot = bot
+
+    async def cog_unload(self):
+        self.remove_old_cooldowns.cancel()
 
 
     ##ADMIND COMMANDS
@@ -24,16 +46,11 @@ class XpCommand(commands.Cog):
                       help="Give user xp", 
                       usage="sq!addxp @user/userID XpAmount")
     @commands.has_role(AIRole)
-    async def addXp(self, ctx:commands.Context, member: typing.Optional[discord.Member], amount_of_xp: int):
+    async def givexp(self, ctx:commands.Context, member: typing.Optional[discord.Member], amount_of_xp: int):
         user = member if member is not None else ctx.author
-        if not amount_of_xp:
-            await ctx.reply("Please specify the amount of XP you want to add/subtract!")
-            return
-
-        if not isinstance(amount_of_xp, int):
-            await ctx.reply("Invalid number!")
-            return
-
+        if not isinstance(user, discord.Member): return
+        if not ctx.guild: return
+        
         embed = discord.Embed(
             title="Giving XP",
             timestamp=ctx.message.created_at
@@ -45,31 +62,8 @@ class XpCommand(commands.Cog):
         embed.add_field(name="To", value=user.display_name, inline=True)
         embed.add_field(name="Amount", value=amount_of_xp, inline=True)
 
-        user_id = str(user.id)
-
-            # Retrieve XP data from MongoDB
-        xp_data = xpCollection.find_one({"UserId": user_id})
-
-        if not xp_data:
-            xp_data = {
-                "UserId": user_id,
-                "Xp": amount_of_xp,
-                "Level": 1,
-                "ShortName": user.display_name
-            }
-            xpCollection.insert_one(xp_data)
-        else:
-            xp_data["Xp"] += amount_of_xp
-            
-            for _ in range(30):
-                next_level = xp_data["Level"] + 1
-                new_level = 100 * next_level * next_level / 20 + next_level * 50
-                if xp_data["Xp"] >= new_level:
-                    xp_data["Level"] += 1
-
-            xpCollection.replace_one({"UserId": user_id}, xp_data)
-            print(xp_data["Level"])  
-
+        await self.add_xp(user, amount_of_xp)
+        
         embed.set_footer(text=ctx.guild.name)
         await ctx.send(embed=embed)
 
@@ -82,91 +76,53 @@ class XpCommand(commands.Cog):
             if not user:
                 user = ctx.author
 
-            myquery = { "UserId": str(user.id) }
-            if (xpCollection.count_documents(myquery) != 0):
-                res = xpCollection.find().sort("Xp", -1)
-                for index, result in enumerate(res):
+            res = xpCollection.find_one({"UserId": str(user.id)})
+            
+            if res is None:
+                await ctx.reply("It looks like this user doesn't like talking")
+                return
 
-                    if(result["UserId"]== str(user.id)):
-                        xp = result["Xp"]
-                        level = result["Level"]
+            current_level = self.calc_level_for_xp(res["Xp"])
+            next_level_xp = self.calc_xp_for_level(current_level + 1)
 
-                        embed = discord.Embed(
-                            title="XP Info",
-                            color=discord.Color.random(),
-                            timestamp=datetime.datetime.utcnow()
-                        )
-                        embed.set_author(name=user.display_name, icon_url=user.avatar)
-                        if user.avatar:
-                            embed.set_thumbnail(url=user.avatar)    
-                    
+            embed = discord.Embed(
+                title="XP Info",
+                color=discord.Color.random(),
+                timestamp=datetime.datetime.now(datetime.timezone.utc))
+            embed.set_author(name=user.display_name, icon_url=user.avatar)
+            if user.avatar:
+                embed.set_thumbnail(url=user.avatar)    
 
-                        nxtLvl = level + 1
-                        newLevel = int(100 * nxtLvl * nxtLvl / 20 + nxtLvl * 50)
-                        LevelXp = int(newLevel - xp)
+            level_emoji = self.level_rewards[0]["emoji"]
+            next_level_emoji = self.after_last_emoji
+            
+            for reward in self.level_rewards:
+                if current_level >= reward["level"]:
+                    level_emoji = reward["emoji"]
+                else:
+                    next_level_emoji = reward["emoji"]
+                    break
 
-                        embed.add_field(
-                            name="XP", 
-                            value=f"{xp:,}"
-                            )
-                        
-                        if level >= 150:
-                            embed.add_field(
-                                name="<:ShellyDiamond:717472682341433472> **Level**", 
-                                value=f'`{level}`', 
-                                inline=True)
-                            
-                            embed.add_field(name='\u200b',value='\u200b')
-                            embed.add_field(
-                                name="<:shellyprototype:981954824851562497>  **Next Level**", 
-                                value=f'`{xp:,}` / `{newLevel:,}` (`{LevelXp}`)')
-                        elif level >= 100:
-                            embed.add_field(
-                                name="<:ShellyGold:710586809712640012> **Level**", 
-                                value=f'`{level}`', 
-                                inline=True)
-                            embed.add_field(name='\u200b',value='\u200b')
-                            embed.add_field(
-                                name="<:ShellyDiamond:717472682341433472> **Next Level**", 
-                                value=f'`{xp:,}` / `{newLevel:,}` (`{LevelXp}`)')
-                        elif level >= 50:
-                            embed.add_field(
-                                name="<:ShellySilver:710586793132818530> **Level**", 
-                                value=f'`{level}`', 
-                                inline=True)
-                            embed.add_field(name='\u200b',value='\u200b')
-                            embed.add_field(
-                                name="<:ShellyGold:710586809712640012> **Next Level**", 
-                                value=f'`{xp:,}` / `{newLevel:,}` (`{LevelXp}`)')
-                        elif level >= 25:
-                            embed.add_field(
-                                name="<:ShellyBronze:710586775319478312>  **Level**", 
-                                value=f'`{level}`', 
-                                inline=True)
-                            embed.add_field(
-                                name="<:ShellySilver:710586793132818530> **Next Level**", 
-                                value=f'`{xp:,}` / `{newLevel:,}` (`{LevelXp}`)')
-                        elif level <= 25:
-                            embed.add_field(
-                                name="<:ShellyBronze:710586775319478312>  **Level**", 
-                                value=f'`{level}`', 
-                                inline=True)
-                            embed.add_field(name='\u200b',value='\u200b')
+            embed.add_field(
+                name="XP", 
+                value=f"{res["Xp"]:,}"
+            )
+                
+            embed.add_field(
+                name=f"{level_emoji} **Level**", 
+                value=f'`{current_level}`'
+                )
+#            embed.add_field(name='\u200b',value='\u200b')
+            embed.add_field( # Next Level, next emoji
+                name=f"{next_level_emoji} **Next Level**", 
+                value=f'`{res["Xp"]:,}` / `{next_level_xp:,}` (`{next_level_xp-res["Xp"]}`)',
+                inline=False
+            )
 
-                            embed.add_field(
-                                name="<:ShellySilver:710586793132818530> **Next Level**", 
-                                value=f'`{xp:,}` / `{newLevel:,}` (`{LevelXp}`)')
-                            
-                        embed.add_field(
-                            name="LB pos.",
-                            value=f"{index + 1} / {xpCollection.count_documents({})}",
-                            )
-                        
-                        embed.set_footer(text=f"Requested by {ctx.author.display_name}", icon_url=ctx.author.avatar)
-                    
-                    
-                        await ctx.send(embed=embed)
+            embed.set_footer(text=f"Requested by {ctx.author.display_name}", icon_url=ctx.author.avatar)
 
+            await ctx.send(embed=embed)
+        
     @commands.command(name="xptop", 
                       help="See who has the biggest ego",
                       usage="sq!xptop (page number)")
@@ -183,7 +139,7 @@ class XpCommand(commands.Cog):
             user = ctx.guild.get_member(int(doc["UserId"]))
 
             if user is not None:
-                commands_info.append((user.id, doc["Xp"], doc["Level"], shortName))
+                commands_info.append((user.id, doc["Xp"], self.calc_level_for_xp(doc["Xp"]), shortName))
 
         else:
             page_size = 5 
@@ -302,6 +258,72 @@ class XpCommand(commands.Cog):
                 response = "You will now not be pinged when you level up!"
 
         await ctx.send(response)
+
+    @commands.Cog.listener()
+    async def on_message(self, message: discord.Message):
+        if message.author.bot or message.guild is None or not isinstance(message.author, discord.Member): return
+
+        if (message.author.id in self.user_cooldowns
+            and time.time() <= self.user_cooldowns[message.author.id]):
+            return
         
+        self.user_cooldowns[message.author.id] = time.time() + 60
+        # MAYBE: Check for yo and only give 1 xp? idk, we'll see.
+        added_xp = random.randint(self.min_xp, self.max_xp)
+        await self.add_xp(message.author, added_xp)
+
+    async def add_xp(self, user: discord.Member,  xp: int, force_give_roles: bool = False ):
+        res = xpCollection.find_one_and_update(
+            {"UserId": f"{user.id}"},
+            {'$inc': {'Xp': xp}},
+            upsert=True)
+
+        if res is None:
+            res = {"Xp": 0}
+            
+        current_level = self.calc_level_for_xp(res["Xp"] + xp)
+        old_level = self.calc_level_for_xp(res["Xp"])
+
+        if current_level == old_level and (not force_give_roles):
+            return
+        
+        current_roles = [role.id for role in user.roles]
+        to_add = [reward['role'] for reward in self.level_rewards if reward['level'] <= current_level]
+        to_add = [user.guild.get_role(role) for role in to_add if role not in current_roles]
+        to_remove = [reward['role'] for reward in self.level_rewards if reward['level'] > current_level]
+        to_remove = [user.guild.get_role(role) for role in to_remove if role in current_roles]
+        if len(to_add) != 0: await user.add_roles(*to_add)
+        if len(to_remove) != 0: await user.remove_roles(*to_remove)
+
+        if current_level > old_level:
+            channel = user.guild.get_channel(self.level_ups_channel_id)
+            if not isinstance(channel, discord.TextChannel): return
+
+            data = optoutCollection.find_one({"userID": user.id})
+            await channel.send(f"🎉 Congratulations {user.mention if data and data['optout'] else user.name}, you've leveled up! Your new Level is **{current_level}**.")
+
+    def calc_level_for_xp(self, xp: int) -> int:
+        return math.floor(math.sqrt((xp/5)+25)-5)
+
+    def calc_xp_for_level(self, xp: int) -> int:
+        return 5*(xp*xp + xp * 10)
+
+    # TODO: Add on_member_join
+    @commands.Cog.listener()
+    async def on_member_join(self, member: discord.Member):
+        await self.add_xp(member, 0, True) # TODO: Test this lol
+
+    @tasks.loop(seconds=120.0)
+    async def remove_old_cooldowns(self):
+        to_remove = []
+        print(self.user_cooldowns)
+        for userid, cooldown in self.user_cooldowns.items():
+            if time.time() > cooldown:
+                to_remove.append(userid)
+        for user in to_remove:
+            del self.user_cooldowns[user]
+        print(self.user_cooldowns)
+
+    
 async def setup(bot): # set async function
     await bot.add_cog(XpCommand(bot)) # Use await
