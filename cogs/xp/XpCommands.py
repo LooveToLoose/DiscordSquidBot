@@ -105,7 +105,7 @@ class XpCommand(commands.Cog):
 
             embed.add_field(
                 name="XP", 
-                value=f"{res["Xp"]:,}"
+                value=f"{res['Xp']:,}"
             )
                 
             embed.add_field(
@@ -316,13 +316,11 @@ class XpCommand(commands.Cog):
     @tasks.loop(seconds=120.0)
     async def remove_old_cooldowns(self):
         to_remove = []
-        print(self.user_cooldowns)
         for userid, cooldown in self.user_cooldowns.items():
             if time.time() > cooldown:
                 to_remove.append(userid)
         for user in to_remove:
             del self.user_cooldowns[user]
-        print(self.user_cooldowns)
 
     
 async def setup(bot): # set async function
