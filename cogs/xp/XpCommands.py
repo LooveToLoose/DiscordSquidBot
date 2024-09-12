@@ -303,15 +303,17 @@ class XpCommand(commands.Cog):
             await channel.send(f"🎉 Congratulations {user.mention if data and data['optout'] else user.name}, you've leveled up! Your new Level is **{current_level}**.")
 
     def calc_level_for_xp(self, xp: int) -> int:
-        return math.floor(math.sqrt((xp/5)+25)-5)
+        mult = -1 if xp < 0 else 1
+        xp *= mult
+        return math.floor(math.sqrt((xp/5)+25)-5) * mult
 
-    def calc_xp_for_level(self, xp: int) -> int:
-        return 5*(xp*xp + xp * 10)
+    def calc_xp_for_level(self, level: int) -> int:
+        if level < 0: return self.calc_xp_for_level(-level) * -1
+        return 5*(level*level + level * 10)
 
-    # TODO: Add on_member_join
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
-        await self.add_xp(member, 0, True) # TODO: Test this lol
+        await self.add_xp(member, 0, True)
 
     @tasks.loop(seconds=120.0)
     async def remove_old_cooldowns(self):
