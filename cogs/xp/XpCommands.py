@@ -300,7 +300,7 @@ class XpCommand(commands.Cog):
             if not isinstance(channel, discord.TextChannel): return
 
             data = optoutCollection.find_one({"userID": user.id})
-            await channel.send(f"🎉 Congratulations {user.mention if data and data['optout'] else user.name}, you've leveled up! Your new Level is **{current_level}**.")
+            await channel.send(f"🎉 Congratulations {user.name if data and data['optout'] else user.mention}, you've leveled up! Your new Level is **{current_level}**.")
 
     def calc_level_for_xp(self, xp: int) -> int:
         mult = -1 if xp < 0 else 1
