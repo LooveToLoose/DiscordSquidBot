@@ -114,8 +114,8 @@ class FeedbackCommands(commands.Cog):
             message = await ctx.send(embed=generate_embed(current_page))
 
             buttons = [
-                "<:left:1158778793687781397>",
-                "<:right:1158778827435167834>", 
+                "<:left:1286702311661375519>",
+                "<:right:1286702326274592788>", 
             ]
 
             for button in buttons:
@@ -132,9 +132,9 @@ class FeedbackCommands(commands.Cog):
                 try:
                     reaction, user = await self.bot.wait_for("reaction_add", check=check, timeout=30)
 
-                    if str(reaction.emoji) == "<:left:1158778793687781397>" and current_page > 0:
+                    if str(reaction.emoji) == "<:left:1286702311661375519>" and current_page > 0:
                         current_page -= 1
-                    elif str(reaction.emoji) == "<:right:1158778827435167834>" and current_page < total_pages - 1:
+                    elif str(reaction.emoji) == "<:right:1286702326274592788>" and current_page < total_pages - 1:
                         current_page += 1
 
                     await message.edit(embed=generate_embed(current_page))
@@ -143,14 +143,6 @@ class FeedbackCommands(commands.Cog):
                 except asyncio.TimeoutError:
                     break
 
-class ErrorHandling():
-    @FeedbackCommands.removefeedbackcommand.error
-    async def removefeedbackommand_error(self,ctx,error):
-            if isinstance(error, commands.MissingRequiredArgument):
-                await ctx.send('Inccorrect arguments entered | !command_name - name')
-    @FeedbackCommands.newfeedbackcommand.error
-    async def newfeedbackcommand_error(self,ctx,error):
-            if isinstance(error, commands.MissingRequiredArgument):
-                await ctx.send('Inccorrect arguments entered | !command_name - name - text channel - role')
 async def setup(bot): # set async function
-    await bot.add_cog(FeedbackCommands(bot)) # Use await
+    return
+#    await bot.add_cog(FeedbackCommands(bot)) # Use await

@@ -57,7 +57,7 @@ async def QuickOrFeedbackCommands(message):
             if custom_command_data:
                  quick = custom_command_data["commandRespond"]
                  return await message.channel.send(quick)
-            
+            return
             # Find custom feedback command data 
             custom_feedback_command_data =  feedbackCommandsCollection.find_one({"commandName": cmd})
 
