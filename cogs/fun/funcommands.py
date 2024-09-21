@@ -21,23 +21,19 @@ class FunCommands(commands.Cog):
     @commands.command(name="say", 
                       role="Admin", 
                       help="Say something while being Squid",
-                      usage="sq!say")
+                      usage="sq!say (in channel) (replying to message) message")
     @commands.has_role(AIRole)
-    async def say(self, ctx: commands.Context,*, message):
-        if not message:
-            await ctx.send('Specify what you want to say!')
+    async def say(self, ctx: commands.Context, channel: typing.Optional[discord.TextChannel], reply_to: typing.Optional[discord.Message], *, message: str):
+        await ctx.message.delete()
+
+        if reply_to:
+            await reply_to.reply(message)
+            return
+        if channel:
+            await channel.send(message)
             return
 
-        text_channel_mentions = ctx.message.channel_mentions
-        if text_channel_mentions:
-            text_channel = text_channel_mentions[0]
-            if message.startswith(text_channel.mention):
-                message = message[len(text_channel.mention):].strip() 
-            await text_channel.send(message)
-        else:
-            await ctx.send(message)
-
-        await ctx.message.delete()
+        await ctx.channel.send(message)
 
 
     @commands.command(name="ask", 
