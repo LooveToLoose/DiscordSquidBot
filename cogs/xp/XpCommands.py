@@ -201,11 +201,8 @@ class XpCommand(commands.Cog):
 
             message = await ctx.send(embed=await generate_embed(current_page))
 
-            buttons = [
-                "<:left:1286702311661375519>",
-                "<:right:1286702326274592788>",
-            ]
-
+            buttons = ["<:left:1286702311661375519>", "<:right:1286702326274592788>"]
+        
             for button in buttons:
                 await message.add_reaction(button)
 
@@ -219,15 +216,14 @@ class XpCommand(commands.Cog):
             while True:
                 try:
                     reaction, user = await self.bot.wait_for("reaction_add", check=check, timeout=30)
+                    if str(reaction.emoji) == "<:left:1286702311661375519>" and page_num > 1:
+                        page_num -= 1
+                    elif str(reaction.emoji) == "<:right:1286702326274592788>" and page_num < total_pages:
+                        page_num += 1
 
-                    if str(reaction.emoji) == "<:left:1286702311661375519>" and current_page > 0:
-                        current_page -= 1
-                    elif str(reaction.emoji) == "<:right:1286702326274592788>" and current_page < total_pages - 1:
-                        current_page += 1
-
-                    await message.edit(embed= await generate_embed(current_page))
+                    embed = await generate_embed(page_num)
+                    await message.edit(embed=embed)
                     await message.remove_reaction(reaction, user)
-
                 except asyncio.TimeoutError:
                     break
 
@@ -268,8 +264,9 @@ class XpCommand(commands.Cog):
             return
         
         self.user_cooldowns[message.author.id] = time.time() + 60
-        # MAYBE: Check for yo and only give 1 xp? idk, we'll see.
-        added_xp = random.randint(self.min_xp, self.max_xp)
+        # check if the message is a 'yo'
+        yo_message = await yoSystem_Handler(message)
+        added_xp = 1 if yo_message else random.randint(self.min_xp, self.max_xp)
         await self.add_xp(message.author, added_xp)
 
     async def add_xp(self, user: discord.Member,  xp: int, force_give_roles: bool = False ):
