@@ -43,7 +43,7 @@ async def yoSystem_Handler(message):
         yo_variations = ["yo", "Yo!", "yoy", "yoyo","<:YO:714280062437818559>","oy","<:yonas:741360791667605596>", "<:YoBoss:787408970792697876>", "<:SquidYo:714937825518157905>","<:shellyo:741359253050097674>"]
         words = content.split()
 
-        if any(variation in content for variation in yo_variations):
+        if any(variation in words for variation in yo_variations):
             yoCollection.find_one_and_update({"word": "yo"}, {"$inc": {"yo": 1}})
             return True
 
