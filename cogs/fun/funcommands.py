@@ -27,13 +27,13 @@ class FunCommands(commands.Cog):
         await ctx.message.delete()
 
         if reply_to:
-            await reply_to.reply(message)
+            await reply_to.reply(message, allowed_mentions=discord.AllowedMentions.all())
             return
         if channel:
-            await channel.send(message)
+            await channel.send(message, allowed_mentions=discord.AllowedMentions.all())
             return
 
-        await ctx.channel.send(message)
+        await ctx.channel.send(message, allowed_mentions=discord.AllowedMentions.all())
 
 
     @commands.command(name="ask", 

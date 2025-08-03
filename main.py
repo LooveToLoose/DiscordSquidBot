@@ -15,6 +15,7 @@ class Bot(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix=[prefix.strip() for prefix in os.getenv("PREFIXES").split(",")], intents=discord.Intents.all())
         self.remove_command("help")
+        self.allowed_mentions = discord.AllowedMentions.none()
     async def startup(self):
         await bot.wait_until_ready()
         await bot.tree.sync()  # If you want to define specific guilds, pass a discord object with id (Currently, this is global)
