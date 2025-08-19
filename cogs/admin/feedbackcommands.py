@@ -114,8 +114,8 @@ class FeedbackCommands(commands.Cog):
             message = await ctx.send(embed=generate_embed(current_page))
 
             buttons = [
-                "<:left:1286702311661375519>",
-                "<:right:1286702326274592788>", 
+                "<:Left:1286702311661375519>",
+                "<:Right:1286702326274592788>", 
             ]
 
             for button in buttons:
