@@ -231,7 +231,7 @@ class XpCommand(commands.Cog):
                 except asyncio.TimeoutError:
                     break
 
-    @commands.command(name="removexp", help="Remove 1 XP from someone.", usage="!removexp @user")
+    @commands.command(name="removexp", help="Remove 1 XP from someone", usage="sq!removexp @user/userID")
     async def removexp(self, ctx, member: discord.Member):
         # Get current time
         now = int(time.time())
