@@ -15,7 +15,6 @@ class MusicCommands(commands.Cog):
         self.bot = bot
         self.voice_clients = {}
 
-    # helper: get track list from folder
     def get_tracks(self):
         tracks = []
         for file in os.listdir(SONGS_DIR):
@@ -140,11 +139,9 @@ class MusicCommands(commands.Cog):
         tracks = self.get_tracks()
         next_number = tracks[-1][0] + 1 if tracks else 1
 
-        # File path to save
         filename = f"{next_number}_{name}"
         file_path = os.path.join(SONGS_DIR, filename)
 
-        # yt_dlp options
         ydl_opts = {
             "format": "bestaudio/best",
             "outtmpl": file_path,
@@ -167,7 +164,6 @@ class MusicCommands(commands.Cog):
             traceback.print_exc()
             return
 
-        # Confirm embed
         embed = discord.Embed(
             title="🎵 New Song Added!",
             description=f"**{name}** has been added and downloaded.",
