@@ -233,31 +233,26 @@ class XpCommand(commands.Cog):
 
     @commands.command(name="removexp", help="Remove 1 XP from someone", usage="sq!removexp @user/userID")
     async def removexp(self, ctx, member: discord.Member):
-        # Get current time
         now = int(time.time())
 
-        # Check cooldown from database
         user_cooldown = db["removexp_cooldowns"].find_one({"user_id": ctx.author.id})
         if user_cooldown and now < user_cooldown["expires_at"]:
             remaining = (user_cooldown["expires_at"] - now) // 3600
             await ctx.send(f"⏳ You can use `!removexp` again in {remaining} hour(s).")
             return
 
-        # Remove 1 XP from the target
         xpCollection.find_one_and_update(
             {"UserId": str(member.id)},
             {"$inc": {"Xp": -1}},
             upsert=True
         )
 
-        # Update cooldown in DB (24 hours from now)
         db["removexp_cooldowns"].update_one(
             {"user_id": ctx.author.id},
             {"$set": {"expires_at": now + 24*3600}},
             upsert=True
         )
 
-        # Confirmation
         await ctx.send(f"✅ 1 XP has been removed from **{member.display_name}** by {ctx.author.display_name}!")
 
     @commands.command(name="optout",
