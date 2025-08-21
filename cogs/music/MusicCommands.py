@@ -133,9 +133,9 @@ class MusicCommands(commands.Cog):
             except asyncio.TimeoutError:
                 break
 
-    @commands.command(name="singadd", help="Add and download a new song", usage="sq!songadd <name> <YouTube URL>")
+    @commands.command(name="singadd", help="Add and download a new song", usage="sq!singadd <name> <YouTube URL>")
     @commands.has_role(AIRole)
-    async def songadd(self, ctx: commands.Context, name: str, url: str):
+    async def singadd(self, ctx: commands.Context, name: str, url: str):
         tracks = self.get_tracks()
         next_number = tracks[-1][0] + 1 if tracks else 1
 
@@ -177,9 +177,9 @@ class MusicCommands(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.command(name="singremove", help="Remove a song from the library", usage="sq!songremove <track number>")
+    @commands.command(name="singremove", help="Remove a song from the library", usage="sq!singremove <track number>")
     @commands.has_role(AIRole)
-    async def songremove(self, ctx: commands.Context, track_number: int):
+    async def singremove(self, ctx: commands.Context, track_number: int):
         tracks = self.get_tracks()
         track = next((t for t in tracks if t[0] == track_number), None)
 
