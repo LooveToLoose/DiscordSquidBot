@@ -108,7 +108,7 @@ class MusicCommands(commands.Cog):
         embed = generate_embed(page_num)
         message = await ctx.send(embed=embed)
 
-        buttons = ["⬅️", "➡️"]
+        buttons = ["<:Left:1286702311661375519>", "<:Right:1286702326274592788>"]
         for button in buttons:
             await message.add_reaction(button)
 
@@ -119,9 +119,9 @@ class MusicCommands(commands.Cog):
             try:
                 reaction, user = await self.bot.wait_for("reaction_add", check=check, timeout=30)
 
-                if str(reaction.emoji) == "⬅️" and page_num > 1:
+                if str(reaction.emoji) == "<:Left:1286702311661375519>" and page_num > 1:
                     page_num -= 1
-                elif str(reaction.emoji) == "➡️" and page_num < total_pages:
+                elif str(reaction.emoji) == "<:Right:1286702326274592788>" and page_num < total_pages:
                     page_num += 1
                 else:
                     continue
