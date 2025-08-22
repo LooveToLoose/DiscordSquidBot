@@ -46,33 +46,25 @@ class MusicCommands(commands.Cog):
         vc = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
 
         if vc is None:
-            try:
-                vc = await channel.connect()
-                self.voice_clients[ctx.guild.id] = vc
-            except discord.ClientException:
-                await ctx.send("I couldn't join because I am already in another voice channel.")
-                return
-            except Exception:
-                await ctx.send("I couldn't join.")
-                traceback.print_exc()
-                return
+            vc = await channel.connect()
+            self.voice_clients[ctx.guild.id] = vc
         elif vc.channel != channel:
             await vc.move_to(channel)
 
         if vc.is_playing():
             vc.stop()
 
-        try:
-            vc.play(discord.FFmpegPCMAudio(file_path)
+        vc.play(discord.FFmpegPCMAudio(file_path))
 
-            embed = discord.Embed(title="🎵 Now Playing", description=f"**{track_name}**", color=discord.Color.blue())
-            embed.add_field(name="Requested by", value=ctx.author.mention, inline=True)
-            embed.set_footer(text="Enjoy the music!")
+        embed = discord.Embed(
+            title="🎵 Now Playing",
+            description=f"**{track_name}**",
+            color=discord.Color.blue()
+        )
+        embed.add_field(name="Requested by", value=ctx.author.mention, inline=True)
+        embed.set_footer(text="Enjoy the music!")
 
-            await ctx.send(embed=embed)
-        except Exception as e:
-            print(f"Error playing track: {e}")
-            return
+        await ctx.send(embed=embed)
 
         async def auto_disconnect(vc, timeout=60):
             await asyncio.sleep(timeout)
@@ -156,13 +148,8 @@ class MusicCommands(commands.Cog):
             ],
         }
 
-        try:
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                ydl.download([url])
-        except Exception as e:
-            await ctx.send("Failed to download the song, check console.")
-            traceback.print_exc()
-            return
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([url])
 
         embed = discord.Embed(
             title="🎵 New Song Added!",
@@ -189,12 +176,8 @@ class MusicCommands(commands.Cog):
 
         _, track_name, file_path = track
 
-        try:
-            os.remove(file_path)
-        except Exception as e:
-            await ctx.send("Failed to remove the song, check console.")
-            traceback.print_exc()
-            return
+        os.remove(file_path)
+        await ctx.send(f"✅ Removed track **{track_name}** successfully.")
 
         embed = discord.Embed(
             title="🗑️ Song Removed",
