@@ -17,7 +17,7 @@ class BotCommands(commands.Cog):
     async def help(self, ctx: commands.Context, command_name: str = None):
         is_admin = ctx.author.get_role(int(AIRole)) is not None
 
-        emojis = ["<:UniGlitch:991664390531194960>", "<:UniKawaii:985945115325501461>", "<:Glotzbaer:713687292455419915>", "<:ShellyOuch:686911271299186719>"] 
+        emojis = ["<:UniGlitch:991664390531194960>", "<:UniKawaii:985945115325501461>", "<:Glotzbaer:713687292455419915>", "<:UniHappy:988473969768280094>", "<:ShellyOuch:686911271299186719>"] 
 
         if not command_name:
             embed = discord.Embed(title='Command List', description='List of available commands:', color=discord.Color.dark_purple())
@@ -33,7 +33,7 @@ class BotCommands(commands.Cog):
                 category_commands = []
 
                 for cmd in cog.get_commands():
-                    if cmd.name.lower() in ['say', 'givexp', 'newquickcommand', 'deletequickcommand', 'newfeedbackcommand', 'removefeedbackcommand'] and not is_admin:
+                    if cmd.name.lower() in ['say', 'givexp', 'newquickcommand', 'deletequickcommand', 'newfeedbackcommand', 'removefeedbackcommand', 'singadd', 'singremove'] and not is_admin:
                         continue
 
                     category_commands.append(f'`{cmd.name}` - {cmd.help}')
