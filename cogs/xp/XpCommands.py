@@ -232,28 +232,23 @@ class XpCommand(commands.Cog):
                     break
 
     @commands.command(name="removexp", help="Remove 1 XP from someone", usage="sq!removexp @user/userID")
+    @commands.cooldown(rate=1, per=86400, type=commands.BucketType.user)  # 1 use per 24h per user
     async def removexp(self, ctx, member: discord.Member):
-        now = int(time.time())
-
-        user_cooldown = db["removexp_cooldowns"].find_one({"user_id": ctx.author.id})
-        if user_cooldown and now < user_cooldown["expires_at"]:
-            remaining = (user_cooldown["expires_at"] - now) // 3600
-            await ctx.send(f"⏳ You can use `!removexp` again in {remaining} hour(s).")
-            return
-
-        xpCollection.find_one_and_update(
+        self.xpCollection.find_one_and_update(
             {"UserId": str(member.id)},
             {"$inc": {"Xp": -1}},
             upsert=True
         )
 
-        db["removexp_cooldowns"].update_one(
-            {"user_id": ctx.author.id},
-            {"$set": {"expires_at": now + 24*3600}},
-            upsert=True
-        )
+        await ctx.send(f"✅ 1 XP has been removed from {member.mention} by {ctx.author.mention}!")
 
-        await ctx.send(f"✅ 1 XP has been removed from **{member.display_name}** by {ctx.author.display_name}!")
+    @removexp.error
+    async def removexp_error(self, ctx, error):
+        if isinstance(error, commands.CommandOnCooldown):
+            retry_at = int(discord.utils.utcnow().timestamp() + error.retry_after)
+            await ctx.send(f"⏳ You can use `!removexp` again <t:{retry_at}:R>.")
+        else:
+            raise error
 
     @commands.command(name="optout",
                       help="Turn off/on pings when leveling up",
