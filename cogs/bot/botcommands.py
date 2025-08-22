@@ -33,7 +33,7 @@ class BotCommands(commands.Cog):
                 category_commands = []
 
                 for cmd in cog.get_commands():
-                    if cmd.name.lower() in ['say', 'givexp', 'newquickcommand', 'deletequickcommand', 'newfeedbackcommand', 'removefeedbackcommand'] and not is_admin:
+                    if cmd.name.lower() in ['say', 'givexp', 'newquickcommand', 'deletequickcommand', 'newfeedbackcommand', 'removefeedbackcommand', 'singadd', 'singremove'] and not is_admin:
                         continue
 
                     category_commands.append(f'`{cmd.name}` - {cmd.help}')
