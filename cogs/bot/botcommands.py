@@ -48,7 +48,7 @@ class BotCommands(commands.Cog):
             if command:
                 if command.name.lower() == "say" and not is_admin:
                     return
-                if command.name.lower() in ['givexp', 'newquickcommand', 'deletequickcommand', 'newfeedbackcommand', 'removefeedbackcommand'] and not is_admin:
+                if command.name.lower() in ['givexp', 'newquickcommand', 'deletequickcommand', 'newfeedbackcommand', 'removefeedbackcommand', 'singadd', 'singremove'] and not is_admin:
                     await ctx.send(f'A mere human like you can not access highly classified command like this.')
                 else:
                     aliases = ', '.join(command.aliases) if command.aliases else 'None'
