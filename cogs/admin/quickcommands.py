@@ -22,7 +22,7 @@ class QuickCommands(commands.Cog):
                       usage="sq!dqc commandName")
     @commands.has_role(AIRole)
     async def deletequickcommand(self, ctx:commands.Context, command_name):
-        result = collection.find_one_and_delete({"commandName": command_name.lower()})
+        result = collection.find_one_and_delete({"commandName": command_name})
 
         if result is None:
             await ctx.send(f"The quick command you are trying to delete doesn't exist!")
