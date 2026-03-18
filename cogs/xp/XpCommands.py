@@ -231,6 +231,25 @@ class XpCommand(commands.Cog):
                 except asyncio.TimeoutError:
                     break
 
+    @commands.command(name="removexp", help="Remove 1 XP from someone", usage="sq!removexp @user/userID")
+    @commands.cooldown(rate=1, per=86400, type=commands.BucketType.user)  # 1 use per 24h per user
+    async def removexp(self, ctx, member: discord.Member):
+        self.xpCollection.find_one_and_update(
+            {"UserId": str(member.id)},
+            {"$inc": {"Xp": -1}},
+            upsert=True
+        )
+
+        await ctx.send(f"✅ 1 XP has been removed from {member.mention} by {ctx.author.mention}!")
+
+    @removexp.error
+    async def removexp_error(self, ctx, error):
+        if isinstance(error, commands.CommandOnCooldown):
+            retry_at = int(discord.utils.utcnow().timestamp() + error.retry_after)
+            await ctx.send(f"⏳ You can use `!removexp` again <t:{retry_at}:R>.")
+        else:
+            raise error
+
     @commands.command(name="optout",
                       help="Turn off/on pings when leveling up",
                       usage="sq!optout")

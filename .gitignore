@@ -4,3 +4,4 @@ env/
 .env/
 .venv/
 .env
+cogs/music/songs/

@@ -9,6 +9,10 @@ Before you start, you'll need to have some things installed:
 1. Python 3.9 or later. (https://www.python.org/downloads/) (It is hosted with python 3.9)
 2. If you want to contribute, you'll need Git. (https://git-scm.com/downloads)
 3. An code editor. Visual Studio Code is recommended, Notepad is not, but whatever you usually use should work fine.
+4. **FFmpeg** – required for voice/audio playback:  
+   - **Windows:** [Download FFmpeg](https://ffmpeg.org/download.html) and add the `bin` folder to your system PATH.  
+   - **macOS:** `brew install ffmpeg`  
+   - **Linux (Debian/Ubuntu):** `sudo apt install ffmpeg`
 
 
 #### 1. Get the code
